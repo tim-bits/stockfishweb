@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chess REST API & FEN Builder & Validator</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;1,400;1,600;1,700&display=swap');
+
+        h1 {
+            font-size: 28px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 22px;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 18px;
+        }
+
+        body {
+            font-family: Poppins, sans-serif;
+            color: black;
+        }
+
+        pre {
+            font-family: consolas, monospace;
+            background-color: rgb(249, 249, 249);
+        }
+
+        b,
+        font {
+            font-size: inherit;
+        }
+
+        .field {
+            font-size: 1.5rem;
+        }
+    </style>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/chessboard-0.3.0.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="js/chessboard-0.3.0.js"></script>
+    <script src="js/chess.js"></script>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+
+    <script type="text/javascript">
+
+        const env = `[[${@environment.getProperty('spring.profiles.include')}]]`;
+        console.log(env);
+        const url = (env === 'prod') ? `[[${@environment.getProperty('api.prod.server.url')}]]` : location.href;
+
+        const initialPosition = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+        let board;
+        let fen;
+
+        function swapColors(radioBtn) {
+            if (radioBtn.id == 'white_move') {
+                document.getElementById('fen').value = document.getElementById('fen').value.replace(' b ', ' w ');
+            } else {
+                document.getElementById('fen').value = document.getElementById('fen').value.replace(' w ', ' b ');
+            }
+        }
+
+        function getColorToMove() {
+            const ele = document.getElementsByName('colorToMove');
+            for (let i = 0; i < ele.length; i++) {
+                if (ele[i].type = "radio") {
+                    if (ele[i].checked) {
+                        if (ele[i].id == 'white_move') {
+                            return ' w - - 0 1';
+                        }
+                    }
+                }
+            }
+            return ' b - - 0 1';
+        }
+
+        function onChange(oldPos, newPos) {
+
+            console.log('Position changed:');
+            console.log('Old position: ' + board.objToFenExported(oldPos));
+            console.log('New position: ' + board.objToFenExported(newPos));
+            console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+
+            fen = board.objToFenExported(newPos) + getColorToMove();
+            document.getElementById("fen").value = fen;
+            setRequest();
+            cleanMessages();
+        }
+
+        $(document).ready(function () {
+            document.getElementById("url").value = url;
+
+            fen = document.getElementById("fen").value;
+            board = new ChessBoard('board', {
+                draggable: true,
+                dropOffBoard: 'trash',
+                sparePieces: true,
+                onChange: onChange,
+                position: `${fen}`
+            });
+            console.log(board.position);
+            setRequest();
+
+            validateFen(fen);
+
+        });
+
+        $(document).on("keypress", "input", function (e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                loadFen(document.getElementById("fen").value);
+            }
+        });
+
+        function loadFen(fenTemp) {
+            board.position(fenTemp);
+            const err = validateFen(fenTemp);
+            if (!err.valid) {
+                displayErrorMessage("INVALID FEN: " + err.error);
+            } else {
+                document.getElementById('status').value = '';
+
+                if (fen.indexOf(' w ') > -1 || fen.indexOf(' b ') > -1) {
+                    if (fen.indexOf(' w ') > -1) {
+                        document.getElementById("white_move").checked = true;
+                    } else {
+                        document.getElementById("black_move").checked = true;
+                    }
+                }
+
+                fen = fenTemp;
+
+                setRequest();
+
+                return fen;
+            }
+        }
+
+        function setRequest() {
+            const req = JSON.stringify({ fen: fen, depth: document.getElementById('depth').value }, undefined, 4);
+            document.getElementById('request').value = req;
+        }
+
+        function getData() {
+            const fenForSubmission = loadFen(document.getElementById("fen").value);
+            if (fenForSubmission) {
+                document.getElementById("fetch").disabled = true;
+                document.getElementById("status").value = "Please wait - your request is being executed...";
+                fetch(
+                    url,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json, text/plain, */*'
+                        },
+                        body: JSON.stringify({ fen: fenForSubmission, depth: document.getElementById("depth").value })
+                    }
+                )
+
+                    .then(res => {
+                        document.getElementById("fetch").disabled = false;
+                        if (!res.ok) {
+                            return res.text().then(text => { throw new Error(text) })
+                        } else {
+                            return res.json();
+                        }
+                    })
+
+                    .then(json => {
+
+                        // const json = res.json();
+                        document.getElementById('status').value = "";
+
+                        document.getElementById("response").innerHTML = JSON.stringify(json, undefined, 4);
+
+                    })
+                    .catch(err => {
+                        let msg = err;
+                        try {
+                            msg = JSON.parse(err.message).message;
+                        } catch (e) {
+                            console.log(e);
+                        }
+                        console.error(msg);
+                        displayErrorMessage(msg);
+                    });
+
+            }
+        }
+
+        function displayErrorMessage(msg) {
+            document.getElementById('status').value = msg;
+            document.getElementById("response").innerHTML = '';
+            document.getElementById("fetch").disabled = false;
+            console.error(msg);
+        }
+
+        function cleanMessages() {
+            document.getElementById('status').value = '';
+            document.getElementById("response").innerHTML = '';
+        }
+
+        function changeRequest(element) {
+            let req = document.getElementById('request').value;
+            if (req != '') {
+                req = JSON.parse(document.getElementById('request').value);
+            } else {
+                req = { fen: document.getElementById('fen').value };
+            }
+            if (element instanceof HTMLSelectElement) {
+                req.depth = element.value;
+                document.getElementById('request').value = JSON.stringify(req, undefined, 4);
+            } else if (element.type == 'radio') {
+                if (element.id == 'white_move') {
+                    document.getElementById('request').value = document.getElementById('request').value.replace(' b ', ' w ');
+                } else {
+                    document.getElementById('request').value = document.getElementById('request').value.replace(' w ', ' b ');
+                }
+            } else {
+                req.fen = document.getElementById('fen').value;
+                document.getElementById('request').value = JSON.stringify(req, undefined, 4);
+            }
+        }
+    </script>
+
+</head>
+
+
+<body>
+
+    <h2>REST API for Chess Position Analysis + FEN Builder & Validator</h2>
+    <div class="mainBody">
+
+        <table>
+            <tr>
+                <td>
+                    <div id="board" style="width: 430px"></div>
+                    <p />
+                    <p align="center">
+                        <button id="startBtn" onclick="board.position(initialPosition); loadFen(initialPosition);">Start
+                            Position
+                        </button>
+                        <button id="clearBtn" onclick="board.position('8/8/8/8/8/8/8/8');changeRequest(this)">Clear
+                            Board
+                        </button>
+                    </p>
+                <td style="width: 15px">
+                </td>
+
+                </td>
+                <td style="vertical-align: top;">
+
+                    <p />
+
+                    <p>URL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="url"
+                            style="font-size: 16px;font-weight: bold;width: 570px;background: #EEEEEE" type="text"
+                            readonly value=""/>
+                    </p>
+
+                    <p>FEN&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input id="fen" type="text" onsubmit="loadFen(this.value)" onblur="loadFen(this.value)"
+                            size="75" value="r1bqk1nr/p2p1ppp/2p5/1pb5/2BpP3/2P5/PP1P1PPP/RNBQ1RK1 w - - 0 1" />
+                    </p>
+                    <p>Depth
+                        <select name="depth" id="depth" style="width:60px" onchange="changeRequest(this);">
+                            <option value="1">1</option>
+                            <!--        <option value="2">2</option>-->
+                            <!--        <option value="3">3</option>-->
+                            <!--        <option value="4">4</option>-->
+                            <option value="5">5</option>
+                            <!--        <option value="6">6</option>-->
+                            <!--        <option value="7">7</option>-->
+                            <!--        <option value="8">8</option>-->
+                            <!--        <option value="9">9</option>-->
+                            <option value="10">10</option>
+                            <!--        <option value="11">11</option>-->
+                            <!--        <option value="12">12</option>-->
+                            <!--        <option value="13">13</option>-->
+                            <!--        <option value="14">14</option>-->
+                            <option value="15">15</option>
+                            <!--        <option value="25">25</option>-->
+                        </select>
+
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        Side to move
+                        <input type="radio" id="white_move" value="White" name="colorToMove" checked
+                            onclick="swapColors(this); changeRequest(this);">
+                        <label for="white_move">white</label>
+                        <input type="radio" id="black_move" value="Black" name="colorToMove"
+                            onclick="swapColors(this); changeRequest(this);">
+                        <label for="black_move">black</label>
+
+                    </p>
+
+                    <h3>Request Body</h3>
+                    <textarea id="request" rows="4" cols="77" disabled></textarea>
+
+                    <p />
+
+                    <button id="fetch" style="width: fit-content;font-size: 16px" onclick="(getData())">Send POST
+                        request
+                    </button>
+                    &nbsp &nbsp<input id="status" type="text" size="59" style="border: none" readonly />
+
+                    <p />
+                    <h3>Response Body</h3>
+                    <textarea id="response" rows="7" cols="77" disabled></textarea>
+
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+    <p style="text-align:center;color:black;">Powered by <a href="https://stockfishchess.org/"
+            target="_blank">Stockfish</a>
+        with help of <a href="https://chessboardjs.com/"
+            target="_blank">chessboardjs,</a>
+        <a href="https://github.com/jhlywa/chess.js" target="_blank">chess.js,</a>
+        and <a href="https://github.com/tim-bits/stockfishweb" target="_blank">StockfishWeb</a>.
+    </p>
+    <p style="text-align:center;color:black;">For feedback and any inquiries, please <a
+            href="mailto:chess.api.online@gmail.com">email us</a>.</p>
+
+</body>
+
+</html>

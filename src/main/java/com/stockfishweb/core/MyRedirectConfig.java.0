@@ -1,0 +1,30 @@
+package com.stockfishweb.core;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.function.RequestPredicates;
+import org.springframework.web.servlet.function.RouterFunction;
+import org.springframework.web.servlet.function.ServerResponse;
+
+import static org.springframework.web.servlet.function.RequestPredicates.path;
+import static org.springframework.web.servlet.function.RouterFunctions.route;
+
+//Java Spring Boot: How to map my app root (“/”) to hello.html?
+//https://stackoverflow.com/questions/27381781/java-spring-boot-how-to-map-my-app-root-to-index-html
+@Configuration
+public class MyRedirectConfig {
+
+    @Bean
+    RouterFunction<ServerResponse> htmlGetRouter() {
+//        ClassPathResource index = new ClassPathResource("static/index.html");
+//        ClassPathResource index = new ClassPathResource("templates/hello.html");
+        ClassPathResource index = new ClassPathResource("templates/index.html");
+//        return
+//                route(RequestPredicates.method(HttpMethod.GET), null).resource(path("/"), index).build();
+        return route().resource(path("/").and(RequestPredicates.method(HttpMethod.GET)
+                .and(RequestPredicates.accept(MediaType.TEXT_HTML))), index).build();
+    }
+}

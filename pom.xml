@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+<!--		<version>3.1.10</version>-->
+		<version>3.2.3</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.playground</groupId>
+	<artifactId>stockfishweb</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>stockfishweb</name>
+	<description>Stockfish REST API</description>
+	<packaging> jar </packaging>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+
+
+	<repositories>
+		<repository>
+			<id>tim_bits-repo</id>
+			<url>https://raw.githubusercontent.com/tim-bits/bughouse_fen_validator/master</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-autoconfigure -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+<!--			<version>3.1.10</version>-->
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
+<!--		<dependency>-->
+<!--			<groupId>io.projectreactor</groupId>-->
+<!--			<artifactId>reactor-core</artifactId>-->
+<!--			<version>3.6.5</version>-->
+<!--		</dependency>-->
+
+		<!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api -->
+<!--		<dependency>-->
+<!--			<groupId>javax.servlet</groupId>-->
+<!--			<artifactId>servlet-api</artifactId>-->
+<!--			<version>2.3</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
+		<!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api -->
+<!--		<dependency>-->
+<!--			<groupId>javax.servlet</groupId>-->
+<!--			<artifactId>servlet-api</artifactId>-->
+<!--			<version>3.0-alpha-1</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
+		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+<!--		<dependency>-->
+<!--			<groupId>javax.servlet</groupId>-->
+<!--			<artifactId>javax.servlet-api</artifactId>-->
+<!--			<version>3.0.1</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
+
+
+		<dependency>
+			<groupId>org.bughouse.fen</groupId>
+			<artifactId>bughouse-fen-validator</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>2.1.0-alpha1</version>
+			<scope>test</scope>
+		</dependency>
+
+<!--		https://www.baeldung.com/spring-boot-shutdown-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-actuator</artifactId>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-security</artifactId>-->
+<!--		</dependency>-->
+
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>logback-classic</artifactId>
+					<groupId>ch.qos.logback</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>log4j-over-slf4j</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<image>
+						<builder>paketobuildpacks/builder-jammy-base:latest</builder>
+					</image>
+				</configuration>
+			</plugin>
+
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-surefire-plugin</artifactId>-->
+<!--				<version>2.22.0</version>-->
+<!--				<configuration>-->
+<!--					<reuseForks>false</reuseForks>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+				<configuration>
+					<systemPropertyVariables>
+						<!-- logging (also src/test/resources/simplelogger.properties) -->
+						<org.slf4j.simpleLogger.defaultLogLevel>DEBUG</org.slf4j.simpleLogger.defaultLogLevel>
+					</systemPropertyVariables>
+
+<!--					<forkCount>4</forkCount>-->
+<!--					<reuseForks>true</reuseForks>-->
+
+<!--					<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>-->
+
+					<reuseForks>false</reuseForks>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+<!--	https://stackoverflow.com/questions/25420745/how-to-set-spring-active-profiles-with-maven-profiles-->
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profile.from.maven>dev</spring.profile.from.maven>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<spring.profile.from.maven>prod</spring.profile.from.maven>
+			</properties>
+		</profile>
+	</profiles>
+
+</project>
