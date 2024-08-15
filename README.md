@@ -5,7 +5,7 @@
 # StockfishWeb
 **StockfishWeb** is high level wrapper with a Web layer on top of [Stockfish](https://stockfishchess.org/), the world strongest UCI chess engine.
 Implemented as a Spring Boot app, StockfishWeb exposes internal Stockfish functionality through REST API.
-Also, additionally, it allows to validate chess positions represented by [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string, and build your own [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string by positioning pieces on the virtual chess board.
+Additionally, it allows to validate chess positions represented by [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string, and build your own [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string by positioning pieces on the virtual chess board.
 
 ## Prerequisites
 To build and run StockfishWeb, maven (3.9+) and java (17+) are required.
@@ -46,7 +46,7 @@ Now you can do the following:
 Queries can be executed via the app front-end (FE) as well as via any http client capable of sending POST requests e.g. curl, postman etc
 
 ##### 1. FE queries:
-   You have a choice of either copy/pasting an existing FEN into the FEN input field or building a position on the virtual chess board from scratch by dragging&dropping chess pieces on/off the board. Please note while you are doing this, the value of the 'Request' text area changes accordingly to reflect the position on the board. You can also use 'Clear' or 'Start' buttons below the board to either start with an empty board or the initial board setup. After you are done setting a position,
+   You have a choice of either copy/pasting an existing FEN into the FEN input field or building a position on the virtual chess board from scratch by dragging&dropping chess pieces on/off the board. Please note while you are doing this, the value of the 'Request' text area changes accordingly to reflect the position on the board. You can also use 'Clear Board' or 'Start Position' buttons below the board to either start with an empty board or the initial board setup. After you are done setting a position,
 choose which side is to move in 'Side to move' selector, if need be, and a desired move depth in 'Depth' combo (the default is 1 and the maximum 15) and, and then press 'Submit' button. 
    If the position is valid, 'Response' text area will be populated with a Json response in the following format:
 ```json
