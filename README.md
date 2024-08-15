@@ -2,7 +2,7 @@
 <img align="right" src="https://stockfishchess.org/images/logo/icon_512x512@2x.png" height="300" width="300">
 
 
-# Stockfish Web
+# StockfishWeb
 **StockfishWeb** is high level wrapper a layer on top of [Stockfish](https://stockfishchess.org/), the world strongest UCI chess engine.
 Implemented as a Spring Boot app, StockfishWeb exposes internal Stockfish functionality through REST API.
 Also, additionally, it allows to validate chess positions represented by [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string, and build your own [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string by positioning pieces on the virtual chess board.
@@ -36,9 +36,9 @@ and you should see the page below:
 
 
 Now you can do the following:
-1) Executing REST queries
-2) Validating FENs
-3) Building FENs from scratch or from existing FENs
+* Executing REST queries
+* Validating FENs
+* Building FENs from scratch or from existing FENs
 
 #### Executing queries
 Queries can be executed via the app front-end (FE) as well as via any http client capable of sending POST requests e.g. curl, postman etc
@@ -66,8 +66,8 @@ Just an fyi: maximum depth is defaulted to 15 i.e. any depth exceeding 15 will b
 
 ### Acknowledgements
 
-The FEN validation is reusing validation rules of [chess.js](https://github.com/jhlywa/chess.js) plus additing extra validation rules on top of it. <br/> The chess board is implemented using [chessboardjs](https://chessboardjs.com/).
-<br/> Back end reuses a revamped version of [Stockfish-Java](https://github.com/senyast4745/Stockfish-Java).
+The FEN validation is reusing validation rules of [chess.js](https://github.com/jhlywa/chess.js) with addition of extra validation rules on top of it. <br/> The chess board is implemented using [chessboardjs](https://chessboardjs.com/).
+<br/> Back end makes use of a revamped version of [Stockfish-Java](https://github.com/senyast4745/Stockfish-Java).
 
 ### License
 
