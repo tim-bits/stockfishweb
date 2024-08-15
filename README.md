@@ -24,7 +24,7 @@ if there are no error during the build, you can proceed with
 ```shell
 	mvn spring-boot:run
 ```
-If you see a Spring logo with the Spring Boot version (i.e. 3.2.3) at the end of your console output, we can proceed with
+If you see a Spring logo with the Spring Boot version (i.e. 3.2.3) at the end of your console output, you can proceed with
 
 ## Using the app
 
@@ -40,13 +40,14 @@ and you should see the page below:
 Now you can do the following:
 * Executing REST queries
 * Validating FENs
-* Building FENs from scratch or from existing FENs
+* Building FENs from scratch or modifying existing ones
 
 #### Executing queries
 Queries can be executed via the app front-end (FE) as well as via any http client capable of sending POST requests e.g. curl, postman etc
 
 ##### 1. FE queries:
-   Either build a position on the virtual chess board or copy/paste a FEN into the FEN input field, choose a desired move depth in 'Depth' combo (maximum 15) and which side is to move in 'Side to move' selector, and then press 'Submit' button. 
+   You have a choice of either copy/pasting an existing FEN into the FEN input field or building a position on the virtual chess board from scratch by dragging&dropping chess pieces on/off the board. Please note while you are doing this, the value of the 'Request' text area changes accordingly to reflect the position on the board. You can also use 'Clear' or 'Start' buttons below the board to either start with an empty board or the initial board setup. After you are done setting a position,
+choose which side is to move in 'Side to move' selector, if need be, and a desired move depth in 'Depth' combo (the default is 1 and the maximum 15) and, and then press 'Submit' button. 
    If the position is valid, 'Response' text area will be populated with a Json response in the following format:
 ```json
 {
