@@ -45,7 +45,7 @@ Queries can be executed via the app front-end (FE) as well as via any http clien
 
 ##### 1. FE queries:
    Either build a position on the virtual chess board or copy/paste a FEN into the FEN input field, choose a desired move depth in 'Depth' combo (maximum 15) and which side is to move in 'Side to move' selector, and then press 'Submit' button. 
-   If the position is valid, 'Response' text area will be populated with a Json response in a following format:
+   If the position is valid, 'Response' text area will be populated with a Json response in the following format:
 ```json
 {
     "bestMove": "c4f7",
@@ -56,7 +56,7 @@ Queries can be executed via the app front-end (FE) as well as via any http clien
 ```
 where  <br/>
 ```eval``` indicates position evaluation with minus sign indicating that position is in favor of black; <br/>
-```mate``` indicates the number of moves till a forced checkmate.
+```mate``` indicates the number of moves till a forced checkmate, when applicable.
 
 ##### 1. Curl queries:
 ```shell
