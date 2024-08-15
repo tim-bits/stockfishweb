@@ -3,7 +3,7 @@
 
 
 # StockfishWeb
-**StockfishWeb** is high level wrapper a layer on top of [Stockfish](https://stockfishchess.org/), the world strongest UCI chess engine.
+**StockfishWeb** is high level wrapper with a Web layer on top of [Stockfish](https://stockfishchess.org/), the world strongest UCI chess engine.
 Implemented as a Spring Boot app, StockfishWeb exposes internal Stockfish functionality through REST API.
 Also, additionally, it allows to validate chess positions represented by [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string, and build your own [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string by positioning pieces on the virtual chess board.
 
