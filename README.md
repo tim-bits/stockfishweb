@@ -25,7 +25,9 @@ if there are no error during the build, you can proceed with
 	mvn spring-boot:run
 ```
 If you see a Spring logo with the Spring Boot version (i.e. 3.2.3) at the end of your console output, we can proceed with
-#Using the app
+
+## Using the app
+
 In your browser, hit your localhost URL i.e.
 ```shell
 http://localhost
