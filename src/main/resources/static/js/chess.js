@@ -866,8 +866,8 @@ for (var prop in SQUARES) {
                 }
             }
             var offset = RAYS[index];
-            let j = i + offset;
-            let blocked = false;
+            var j = i + offset;
+            var blocked = false;
             while (j !== square) {
                 if (board[j] != null) {
                     blocked = true;
