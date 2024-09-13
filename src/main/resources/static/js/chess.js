@@ -146,20 +146,14 @@ var Chess = function(fen) {
     a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117, g1: 118, h1: 119
   };
 
+
   // tj - start
+
+  //from ts
+  var PIECE_MASKS = { p: 0x1, n: 0x2, b: 0x4, r: 0x8, q: 0x10, k: 0x20 };
+
+
   var MY_SQUARES = [];
-  // var MY_SQUARES = Object.entries(SQUARES).map(e => [e[1], e[0]]);
-//   var MY_SQUARES = SQUARES.map(swap);
-// for (var index = 0; index < array.length; index++) {
-//   SQUARES.get
-//   const element = array[index];
-  
-// }
-
-
-//   function swap(entry) {
-//     return [entry.value, entry.key];
-//   }
 
 
 for (var prop in SQUARES) {
@@ -170,24 +164,6 @@ for (var prop in SQUARES) {
 
   }
 }
-
-var COLUMNS = 'abcdefgh'.split('');
-
-  function squareDistance(s1, s2) {
-    s1 = s1.split('');
-    var s1x = COLUMNS.indexOf(s1[0]) + 1;
-    var s1y = parseInt(s1[1], 10);
-  
-    s2 = s2.split('');
-    var s2x = COLUMNS.indexOf(s2[0]) + 1;
-    var s2y = parseInt(s2[1], 10);
-  
-    var xDelta = Math.abs(s1x - s2x);
-    var yDelta = Math.abs(s1y - s2y);
-  
-    if (xDelta >= yDelta) return xDelta;
-    return yDelta;
-  }
 
   var errors = {
     '-1': 'FEN is empty',
@@ -208,6 +184,8 @@ var COLUMNS = 'abcdefgh'.split('');
    14: 'Kings are too close to each other',
    15: 'Both sides are in check: only one side can be in check',
    16: 'Side in check must have right to move',
+   17: 'Maximum number of allowed checks exceeded:',
+   18: 'Invalid discovered check',
  };
 
 
@@ -389,8 +367,6 @@ var COLUMNS = 'abcdefgh'.split('');
       for (var i = 0; i < kings.length; i++) {
         // 11th criterion: missing king(s)
       if (!(kings[i].regex).test(tokens[0])) {
-        // return { valid: false, error_number: 11, error: 'Invalid FEN: missing ' + kings[i].color +  ' king' };
-        // return { valid: false, error_number: 11, error: 'Invalid FEN: missing ' + kings[i].color +  ' king' };
         return { valid: false, error_number: 11, error: errors[11].replace("|color|", kings[i].color)};
       }
       // 11th criterion: too many kings
@@ -415,37 +391,44 @@ var COLUMNS = 'abcdefgh'.split('');
 
 //tj
   function secondaryValidation(fen) {
-    //tj: 12 - kings are too close
-    var king1UglySquare = kings["w"];
-    var king2UglySquare = kings["b"];
+    //tj: 14 - kings are too close
 
-    var king1NormalSquare;
-    var king2NormalSquare;
 
-    function findSquare(kingUglySquare) {
-      for (var index = 0; index < MY_SQUARES.length; index++) {
-        var element = MY_SQUARES[index];
-        if(index === kingUglySquare) {
-          return element;
-        }  
-      }
-    }
+  var diff;
+  if (Math.max(kings["w"], kings["b"]) - Math.min(kings["w"], kings["b"]) >= 15) {
+    diff = Math.abs(Math.max(kings["w"], kings["b"]) - 16 -  Math.min(kings["w"], kings["b"]));
+  } else {
+    diff = Math.max(kings["w"], kings["b"]) -  Math.min(kings["w"], kings["b"]);
+  }
 
-    var king1NormalSquare = findSquare(king1UglySquare);
-    var king2NormalSquare = findSquare(king2UglySquare);
 
-    var distanceBetweenKings = squareDistance(king1NormalSquare, king2NormalSquare);
-    if (distanceBetweenKings === 1) {
-      return { valid: false, error_number: 14, error: errors[14] };   
+    if (diff <= 1) {
+        return { valid: false, error_number: 14, error: errors[14] };
     }
 
     if (king_attacked(WHITE) && king_attacked(BLACK)) {
-      return { valid: false, error_number: 15, error:  errors[15] }; 
+      return { valid: false, error_number: 15, error:  errors[15] };
     }
-    if (king_attacked(BLACK) && fen.indexOf(' w ') > -1
-      || king_attacked(WHITE) && fen.indexOf(' b ') > -1) {
-      return { valid: false, error_number: 16, error: errors[16] }; 
+
+  if (king_attacked(BLACK) && turn === WHITE
+    || king_attacked(WHITE) && turn === BLACK) {
+    return { valid: false, error_number: 16, error: errors[16] };
+  }
+
+    var numberOfChecks = _attacked(swap_color(turn),  kings[turn], true);
+    if (numberOfChecks.length > 2) {
+      return { valid: false, error_number: 17, error:  errors[17] + numberOfChecks.length };
     }
+
+    if (numberOfChecks.length === 2) {
+      if (board[SQUARES[numberOfChecks[0]]].type === board[SQUARES[numberOfChecks[1]]].type
+        || board[SQUARES[numberOfChecks[0]]].type === QUEEN && board[SQUARES[numberOfChecks[1]]].type === ROOK
+        || board[SQUARES[numberOfChecks[1]]].type === QUEEN && board[SQUARES[numberOfChecks[0]]].type === ROOK
+      ) {
+        return { valid: false, error_number: 18, error:  errors[18] };
+      }
+    }
+
     return {valid: true, error_number: 0, error: errors[0]};
   }
     //tj
@@ -838,6 +821,88 @@ var COLUMNS = 'abcdefgh'.split('');
   function king_attacked(color) {
     return attacked(swap_color(color), kings[color]);
   }
+
+//tj - addition from the latest ts version
+  function _attacked(color, square, verbose) {
+    var attackers = [];
+    for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+        // did we run off the end of the board
+        if (i & 0x88) {
+            i += 7;
+            continue;
+        }
+        // if empty square or wrong color
+        if (board[i] === undefined || board[i].color !== color) {
+            continue;
+        }
+        var piece = board[i];
+        var difference = i - square;
+        // skip - to/from square are the same
+        if (difference === 0) {
+            continue;
+        }
+        var index = difference + 119;
+        if (ATTACKS[index] & PIECE_MASKS[piece.type]) {
+            if (piece.type === PAWN) {
+                if ((difference > 0 && piece.color === WHITE) ||
+                    (difference <= 0 && piece.color === BLACK)) {
+                    if (!verbose) {
+                        return true;
+                    }
+                    else {
+                        attackers.push(algebraic(i));
+                    }
+                }
+                continue;
+            }
+            // if the piece is a knight or a king
+            if (piece.type === 'n' || piece.type === 'k') {
+                if (!verbose) {
+                    return true;
+                }
+                else {
+                    attackers.push(algebraic(i));
+                    continue;
+                }
+            }
+            var offset = RAYS[index];
+            var j = i + offset;
+            var blocked = false;
+            while (j !== square) {
+                if (board[j] != null) {
+                    blocked = true;
+                    break;
+                }
+                j += offset;
+            }
+            if (!blocked) {
+                if (!verbose) {
+                    return true;
+                }
+                else {
+                    attackers.push(algebraic(i));
+                    continue;
+                }
+            }
+        }
+    }
+    if (verbose) {
+        return attackers;
+    }
+    else {
+        return false;
+    }
+}
+function attackers(square, attackedBy) {
+    if (!attackedBy) {
+        return _attacked(turn, SQUARES[square], true);
+    }
+    else {
+        return _attacked(attackedBy, SQUARES[square], true);
+    }
+}
+// tj
+
 
   function in_check() {
     return king_attacked(turn);
